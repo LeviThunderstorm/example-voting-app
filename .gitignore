@@ -1,6 +1,12 @@
-*.pyc
-project.lock.json
-bin/
-obj/
-.vs/
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+*.tfvars
+!.tfvars.example
+
+# Node, Python, and general
 node_modules/
+__pycache__/
+.DS_Store
