@@ -13,21 +13,26 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # Example for building and scanning the 'vote' service
-      - name: Build Docker Image
+      - name: Build and Push Docker Image
         uses: docker/build-push-action@v5
         with:
           context: ./vote
-          load: true
-          tags: voting-app-vote:${{ github.sha }}
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/voting-app-vote:${{ github.sha }}
 
       - name: Run Trivy Vulnerability Scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: 'voting-app-vote:${{ github.sha }}'
+          image-ref: '${{ secrets.DOCKER_USERNAME }}/voting-app-vote:${{ github.sha }}'
           format: 'table'
-          exit-code: '0' # Set to '1' to fail pipeline on high/critical vulns
+          exit-code: '0'
           severity: 'CRITICAL,HIGH'
