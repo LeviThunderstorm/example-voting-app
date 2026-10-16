@@ -1,0 +1,33 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Example for building and scanning the 'vote' service
+      - name: Build Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./vote
+          load: true
+          tags: voting-app-vote:${{ github.sha }}
+
+      - name: Run Trivy Vulnerability Scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'voting-app-vote:${{ github.sha }}'
+          format: 'table'
+          exit-code: '0' # Set to '1' to fail pipeline on high/critical vulns
+          severity: 'CRITICAL,HIGH'
